@@ -81,6 +81,8 @@ gulp.task('bundle-js', ['clean'], function (cb) {
 gulp.task('bundle-css', ['clean'], function () {
   var files = [
     './lib/shared/activator.css',
+    './lib/shared/bootstrap.css',
+
     './lib/timeline/component/css/timeline.css',
     './lib/timeline/component/css/panel.css',
     './lib/timeline/component/css/labelset.css',
@@ -95,7 +97,8 @@ gulp.task('bundle-css', ['clean'], function () {
     './lib/timeline/component/css/pathStyles.css',
 
     './lib/network/css/network-manipulation.css',
-    './lib/network/css/network-navigation.css'
+    './lib/network/css/network-navigation.css',
+    './lib/network/css/network-tooltip.css'
   ];
 
   return gulp.src(files)
@@ -121,7 +124,10 @@ gulp.task('copy', ['clean'], function () {
 gulp.task('minify', ['bundle-js'], function (cb) {
   var result = uglify.minify([DIST + '/' + VIS_JS], uglifyConfig);
 
-  fs.writeFileSync(DIST + '/' + VIS_MIN_JS, result.code);
+  // note: we add a newline '\n' to the end of the minified file to prevent
+  //       any issues when concatenating the file downstream (the file ends
+  //       with a comment).
+  fs.writeFileSync(DIST + '/' + VIS_MIN_JS, result.code + '\n');
   fs.writeFileSync(DIST + '/' + VIS_MAP, result.map);
 
   cb();

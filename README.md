@@ -28,6 +28,10 @@ Install via bower:
 
     bower install vis
 
+Link via cdnjs:
+
+    http://cdnjs.com
+
 Or download the library from the github project:
 [https://github.com/almende/vis.git](https://github.com/almende/vis.git).
 
@@ -154,6 +158,16 @@ The source code of vis.js consists of commonjs modules, which makes it possible 
 
 *Note that hammer.js version 1 is required (v1.0.6-v1.1.3), version 2 is not yet supported.*
 
+
+#### Prerequisites
+
+Before you can do a build:
+
+- Install node.js, npm, and browserify on your system.
+- Download or clone the vis.js project.
+- Install the dependencies of vis.js by running `npm install` in the root of the project.
+
+
 #### Example 1: Bundle a single visualization
 
 For example, to create a bundle with just the Timeline and DataSet, create an index file named **custom.js** in the root of the project, containing: 
@@ -277,16 +291,16 @@ Then run the tests:
 
 ## License
 
-Copyright (C) 2010-2014 Almende B.V.
+Copyright (C) 2010-2015 Almende B.V.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Vis.js is dual licensed under both
 
-   http://www.apache.org/licenses/LICENSE-2.0
+  * The Apache 2.0 License
+    http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+and
+
+  * The MIT License
+    http://opensource.org/licenses/MIT
+
+Vis.js may be distributed under either license.

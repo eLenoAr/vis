@@ -11,7 +11,7 @@
   </style>
 
   <!-- note: moment.js must be loaded before vis.js, else vis.js uses its embedded version of moment.js -->
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.3.1/moment.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
 
   <script src="../../dist/vis.js"></script>
   <link href="../../dist/vis.css" rel="stylesheet" type="text/css" />
@@ -56,9 +56,6 @@
     end: now.clone().add(11, 'days'),
     zoomMin: 1000 * 60 * 60 * 24,          // a day
     zoomMax: 1000 * 60 * 60 * 24 * 30 * 3  // three months
-    //maxHeight: 300,
-    //height: '300px',
-    //orientation: 'top'
   };
 
   var timeline = new vis.Timeline(container, items, options);

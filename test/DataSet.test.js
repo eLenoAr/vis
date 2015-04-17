@@ -1,12 +1,13 @@
 var assert = require('assert');
 var moment = require('moment');
 var DataSet = require('../lib/DataSet');
+var Queue = require('../lib/Queue');
 
 var now = new Date();
 
-// TODO: improve DataSet tests, split up in one test per function
 describe('DataSet', function () {
   it('should work', function () {
+    // TODO: improve DataSet tests, split up in one test per function
 
     var data = new DataSet({
       type: {
@@ -25,6 +26,7 @@ describe('DataSet', function () {
     ]);
 
     var items = data.get();
+    assert.equal(data.length, 4);
     assert.equal(items.length, 4);
     items.forEach(function (item) {
       assert.ok(item.start instanceof Date);
@@ -75,6 +77,7 @@ describe('DataSet', function () {
       {id: 3},
       {id: 4}
     ]);
+    assert.equal(data.length, 3);
 
     // add an item
     data.add({id: 5, content: 'Item 5', start: now.valueOf()});
@@ -86,12 +89,17 @@ describe('DataSet', function () {
       {id: 4},
       {id: 5}
     ]);
+    assert.equal(data.length, 4);
 
     // update an item
     data.update({id: 5, content: 'changed!'});                         // update item (extend existing fields)
+    assert.equal(data.length, 4);
     data.remove(3);                                                    // remove existing item
+    assert.equal(data.length, 3);
     data.add({id: 3, other: 'bla'});                                   // add new item
+    assert.equal(data.length, 4);
     data.update({id: 6, content: 'created!', start: now.valueOf()});   // this item is not yet existing, create it
+    assert.equal(data.length, 5);
     assert.deepEqual(data.get().sort(sort), [
       {id: 1, content: 'Item 1', start: now},
       {id: 3, other: 'bla'},
@@ -99,8 +107,10 @@ describe('DataSet', function () {
       {id: 5, content: 'changed!', start: now},
       {id: 6, content: 'created!', start: now}
     ]);
+    assert.equal(data.length, 5);
 
     data.clear();
+    assert.equal(data.length, 0);
 
     assert.equal(data.get().length, 0);
 
@@ -174,4 +184,103 @@ describe('DataSet', function () {
     // TODO: test subscribing to events
 
   });
+
+  it('should queue and flush changes', function () {
+    var options = {queue: true};
+    var dataset = new DataSet([
+      {id: 1, content: 'Item 1'},
+      {id: 2, content: 'Item 2'}
+    ], options);
+
+    assert.deepEqual(dataset.get(), [
+      {id: 1, content: 'Item 1'},
+      {id: 2, content: 'Item 2'}
+    ]);
+
+    dataset.add({id: 3, content: 'Item 3'});
+    dataset.update({id: 1, content: 'Item 1 (updated)'});
+    dataset.remove(2);
+
+    assert.deepEqual(dataset.get(), [
+      {id: 1, content: 'Item 1'},
+      {id: 2, content: 'Item 2'}
+    ]);
+
+    dataset.flush();
+
+    assert.deepEqual(dataset.get(), [
+      {id: 1, content: 'Item 1 (updated)'},
+      {id: 3, content: 'Item 3'}
+    ]);
+  });
+
+  it('should queue and flush changes after a timeout', function (done) {
+    var options = {queue: {delay: 100}};
+    var dataset = new DataSet([
+      {id: 1, content: 'Item 1'},
+      {id: 2, content: 'Item 2'}
+    ], options);
+
+    assert.deepEqual(dataset.get(), [
+      {id: 1, content: 'Item 1'},
+      {id: 2, content: 'Item 2'}
+    ]);
+
+    dataset.add({id: 3, content: 'Item 3'});
+    dataset.update({id: 1, content: 'Item 1 (updated)'});
+    dataset.remove(2);
+
+    assert.deepEqual(dataset.get(), [
+      {id: 1, content: 'Item 1'},
+      {id: 2, content: 'Item 2'}
+    ]);
+
+    setTimeout(function () {
+      assert.deepEqual(dataset.get(), [
+        {id: 1, content: 'Item 1 (updated)'},
+        {id: 3, content: 'Item 3'}
+      ]);
+
+      done();
+    }, 200)
+  });
+
+  it('should remove a queue from the dataset', function () {
+    var options = {queue: true};
+    var dataset = new DataSet([
+      {id: 1, content: 'Item 1'},
+      {id: 2, content: 'Item 2'}
+    ], options);
+
+    assert.deepEqual(dataset.get(), [
+      {id: 1, content: 'Item 1'},
+      {id: 2, content: 'Item 2'}
+    ]);
+
+    dataset.add({id: 3, content: 'Item 3'});
+    dataset.update({id: 1, content: 'Item 1 (updated)'});
+    dataset.remove(2);
+
+    assert.deepEqual(dataset.get(), [
+      {id: 1, content: 'Item 1'},
+      {id: 2, content: 'Item 2'}
+    ]);
+
+    dataset.setOptions({queue: false}); // remove queue, should flush changes
+
+    assert.deepEqual(dataset.get(), [
+      {id: 1, content: 'Item 1 (updated)'},
+      {id: 3, content: 'Item 3'}
+    ]);
+
+    dataset.add({id: 4, content: 'Item 4'});
+
+    assert.deepEqual(dataset.get(), [
+      {id: 1, content: 'Item 1 (updated)'},
+      {id: 3, content: 'Item 3'},
+      {id: 4, content: 'Item 4'}
+    ]);
+
+  });
+
 });
